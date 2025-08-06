@@ -1,1 +1,1 @@
-# RestAssuredBDD-MapsAPI
+# RestAssuredBDD-GoRestAPI
