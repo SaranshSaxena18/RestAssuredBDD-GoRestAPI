@@ -7,7 +7,7 @@ Feature: Go Rest API Automation
   Scenario Outline: Test Create User API
     Given "Add User" API payload should be valid with "<name>", "<gender>", "<email>", "<status>" 
     When API is hit with "POST" https request
-    Then "status" "ok" response should be recieved
+    Then "POST" request response should be valid
     
     Examples:
     |name							 |gender|email											 |status|

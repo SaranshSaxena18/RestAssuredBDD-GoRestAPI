@@ -7,9 +7,9 @@ public class testDataBuild {
 	{
 		createUserPojo createUser = new createUserPojo();
 		createUser.setName(name);
-		createUser.setGender(name);
-		createUser.setEmail(name);
-		createUser.setStatus(name);
+		createUser.setGender(gender);
+		createUser.setEmail(email);
+		createUser.setStatus(status);
 		return createUser;
 	}
 }
