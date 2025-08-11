@@ -35,7 +35,7 @@ public class StepDefinition {
 	}
 
 	@Then("{string} request response should be valid")
-	public void response_should_be_recieved(String APIMethod) {
+	public void response_should_be_valid(String APIMethod) {
 		response.then().spec(SpecificationFactory.getResponseSpecification(APIMethod)).log().all();
 	}
 

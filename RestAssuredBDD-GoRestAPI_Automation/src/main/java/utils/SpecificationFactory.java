@@ -10,6 +10,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 public class SpecificationFactory {
 	private static RequestSpecification reqSpec;
@@ -50,7 +51,11 @@ public class SpecificationFactory {
     {
     	if(APIMethod.equalsIgnoreCase("POST"))
     	{
-    		responseSpec = new ResponseSpecBuilder().expectStatusCode(201).expectContentType(ContentType.JSON).build();
+    		responseSpec = new ResponseSpecBuilder()
+    						.expectStatusCode(201)
+    						.expectContentType(ContentType.JSON)
+    						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
+    						.build();
     	}
     	return responseSpec;
     }
