@@ -12,4 +12,37 @@ public class PropertyFileReader {
 		prop.load(fis);
 		return prop.getProperty(key);
 	}
+	
+	public static String getEndPoint(String APIMethod)
+    {
+    	if(APIMethod.equalsIgnoreCase("POST"))
+		{
+			try {
+				return PropertyFileReader.getProperty("AddUserEndPoint");
+			} catch (IOException e) {
+				System.out.println("Unable to fetch Add User End Point from the global properties file.");
+				e.printStackTrace();
+			}
+		}
+    	else if(APIMethod.equalsIgnoreCase("GET"))
+		{
+			try {
+				return PropertyFileReader.getProperty("GetUserEndPoint");
+			} catch (IOException e) {
+				System.out.println("Unable to fetch Get User End Point from the global properties file.");
+				e.printStackTrace();
+			}
+		}
+    	else if(APIMethod.equalsIgnoreCase("DELETE"))
+		{
+			try {
+				System.out.println("DeleteUserEndPoint - "+PropertyFileReader.getProperty("DeleteUserEndPoint"));
+				return PropertyFileReader.getProperty("DeleteUserEndPoint");
+			} catch (IOException e) {
+				System.out.println("Unable to fetch Delete User End Point from the global properties file.");
+				e.printStackTrace();
+			}
+		}
+		return null;
+    }
 }

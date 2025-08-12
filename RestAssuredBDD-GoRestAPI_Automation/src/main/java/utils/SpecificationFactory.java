@@ -11,6 +11,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.lessThan;
 
 public class SpecificationFactory {
 	private static RequestSpecification reqSpec;
@@ -55,24 +56,19 @@ public class SpecificationFactory {
     						.expectStatusCode(201)
     						.expectContentType(ContentType.JSON)
     						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
+    						.expectResponseTime(lessThan(5000L))
+    						.build();
+    	}
+    	else if(APIMethod.equalsIgnoreCase("GET single user"))
+    	{
+    		responseSpec = new ResponseSpecBuilder()
+    						.expectStatusCode(200)
+    						.expectContentType(ContentType.JSON)
+    						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
+    						.expectResponseTime(lessThan(5000L))
     						.build();
     	}
     	return responseSpec;
-    }
-    
-    
-    public static String getEndPoint(String APIMethod)
-    {
-    	if(APIMethod.equalsIgnoreCase("POST"))
-		{
-			try {
-				return PropertyFileReader.getProperty("AddUserEndPoint");
-			} catch (IOException e) {
-				System.out.println("Unable to fetch Add User End Point from the global properties file.");
-				e.printStackTrace();
-			}
-		}
-		return null;
     }
 
 }
