@@ -1,5 +1,7 @@
 package StepDefinition;
 
+import java.util.Map;
+
 import org.testng.annotations.Test;
 
 import io.cucumber.java.After;
@@ -9,6 +11,7 @@ import io.cucumber.java.Scenario;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import utils.ExtentTestManager;
+import utils.GetData;
 import utils.PropertyFileReader;
 import utils.SpecificationFactory;
 
@@ -19,6 +22,23 @@ public class Hooks {
 		String scenarioName = scenario.getName();
 		ExtentTestManager.createTest(scenarioName);
 	}
+	
+	@Before
+    public void beforeScenario(Scenario scenario) throws Exception {
+        // Get all scenario data from Excel
+        Map<String, Object[]> dataMap = GetData.getUserData();
+
+        // Match scenario name from Cucumber to Excel key
+        Object[] rowData = dataMap.get(scenario.getName());
+
+        if (rowData == null) {
+            throw new RuntimeException("No test data found in Excel for scenario: " + scenario.getName());
+        }
+
+        // Store in some thread-safe test context (your own implementation)
+        TestContext.setData(rowData);
+    }
+
 	
 	@After(order=1)
 	public void cleanUp() {

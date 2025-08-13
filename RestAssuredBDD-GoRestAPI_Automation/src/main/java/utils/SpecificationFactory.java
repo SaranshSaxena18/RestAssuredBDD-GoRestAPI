@@ -23,7 +23,7 @@ public class SpecificationFactory {
                     String baseURI = null;
 					try {
 						baseURI = PropertyFileReader.getProperty("baseURI");
-						System.out.println("baseURI - "+baseURI);
+						//System.out.println("baseURI - "+baseURI);
 					} catch (IOException e) {
 						System.out.println("Unable to read baseURI from the global properties file.");
 						e.printStackTrace();
@@ -31,7 +31,7 @@ public class SpecificationFactory {
                     String authToken = null;
 					try {
 						authToken = PropertyFileReader.getProperty("AuthorizationToken");
-						System.out.println("authToken - "+authToken);
+						//System.out.println("authToken - "+authToken);
 					} catch (IOException e) {
 						System.out.println("Unable to read AuthorizationToken from the global properties file.");
 						e.printStackTrace();
@@ -40,7 +40,6 @@ public class SpecificationFactory {
                         .setBaseUri(baseURI)
                         .addHeader("Content-Type", "application/json") 
                         .addHeader("Authorization", authToken)
-                        .log(LogDetail.ALL) 
                         .build();
                 }
             }
@@ -60,6 +59,15 @@ public class SpecificationFactory {
     						.build();
     	}
     	else if(APIMethod.equalsIgnoreCase("GET single user"))
+    	{
+    		responseSpec = new ResponseSpecBuilder()
+    						.expectStatusCode(200)
+    						.expectContentType(ContentType.JSON)
+    						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
+    						.expectResponseTime(lessThan(5000L))
+    						.build();
+    	}
+    	else if(APIMethod.equalsIgnoreCase("PUT"))
     	{
     		responseSpec = new ResponseSpecBuilder()
     						.expectStatusCode(200)

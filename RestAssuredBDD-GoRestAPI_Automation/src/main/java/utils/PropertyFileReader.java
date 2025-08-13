@@ -33,6 +33,15 @@ public class PropertyFileReader {
 				e.printStackTrace();
 			}
 		}
+    	else if(APIMethod.equalsIgnoreCase("PUT"))
+		{
+			try {
+				return PropertyFileReader.getProperty("EditUserEndPoint");
+			} catch (IOException e) {
+				System.out.println("Unable to fetch Put End Point from the global properties file.");
+				e.printStackTrace();
+			}
+		}
     	else if(APIMethod.equalsIgnoreCase("DELETE"))
 		{
 			try {
