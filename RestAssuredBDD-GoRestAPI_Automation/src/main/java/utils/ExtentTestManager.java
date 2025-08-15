@@ -23,8 +23,8 @@ public class ExtentTestManager {
 		return extent;
 	}
 	
-	public static synchronized ExtentTest createTest(String testName) {
-		ExtentTest test = extent.createTest(testName);//this step creates a new test in the report with the given test name
+	public static synchronized ExtentTest createTest(ThreadLocal<String> scenarioName) {
+		ExtentTest test = extent.createTest(scenarioName.get());//this step creates a new test in the report with the given test name
 		extentTest.set(test);//this step sets the current thread's ExtentTest instance
 		return test;
 	}

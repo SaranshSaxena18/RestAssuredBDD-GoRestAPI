@@ -4,9 +4,12 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.aventstack.extentreports.ExtentTest;
+
 import io.cucumber.java.After;
 import io.cucumber.java.AfterAll;
 import io.cucumber.java.Before;
+import io.cucumber.java.BeforeAll;
 import io.cucumber.java.Scenario;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
@@ -17,26 +20,26 @@ import utils.SpecificationFactory;
 
 public class Hooks {
 	private static final ThreadLocal<String> ScenarioName = new ThreadLocal<>();
-	@Before
+	//private String scenarioName;
+	@Before(order=1)
 	public void setUp(Scenario scenario) {
-		String scenarioName = scenario.getName();
-		ExtentTestManager.createTest(scenarioName);
+		//scenarioName = scenario.getName();
+		ExtentTestManager.createTest(ScenarioName);
 	}
 	
-	@Before
-    public void beforeScenario(Scenario scenario) throws Exception {
-        // Get all scenario data from Excel
-        Map<String, Object[]> dataMap = GetData.getUserData();
+	public static String getScenarioName() {
+		return ScenarioName.get();
+	}
 
-        // Match scenario name from Cucumber to Excel key
-        Object[] rowData = dataMap.get(scenario.getName());
-
-        if (rowData == null) {
-            throw new RuntimeException("No test data found in Excel for scenario: " + scenario.getName());
-        }
-
-        // Store in some thread-safe test context (your own implementation)
-        TestContext.setData(rowData);
+	@Before(order=0)
+	public void before(Scenario scenario) {
+		ScenarioName.set(scenario.getName());
+		System.out.println("Starting scenario: " + ScenarioName.get());
+	}
+	
+	@BeforeAll
+    public static void beforeAll() {
+        GetData.initialize();
     }
 
 	
@@ -58,9 +61,19 @@ public class Hooks {
         StepDefinition.newUserId = 0;
     }
 	
-	 @After(order=0)
-		public void tearDown()
-		{
-	   		ExtentTestManager.flush();
+	@After
+    public void afterScenario(Scenario scenario) {
+        ExtentTest test = ExtentTestManager.getExtentTest();
+
+        if (scenario.isFailed()) {
+            test.fail("Scenario failed: " + scenario.getName());
+        } else {
+            test.pass("Scenario passed: " + scenario.getName());
+        }
+	}
+	
+	 @AfterAll
+		public static void tearDown() {
+			ExtentTestManager.flush();
 		}
 }

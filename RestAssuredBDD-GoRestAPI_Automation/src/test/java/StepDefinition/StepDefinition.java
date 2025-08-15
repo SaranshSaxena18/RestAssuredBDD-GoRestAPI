@@ -10,6 +10,7 @@ import io.restassured.specification.RequestSpecification;
 import pojo.CreateUserSuccessResponsePojo;
 import pojo.EditUserResponsePojo;
 import pojo.GetUserResponsePojo;
+import utils.GetData;
 import utils.PropertyFileReader;
 import utils.SpecificationFactory;
 import utils.UserDetailsGenerator;
@@ -18,6 +19,7 @@ import static io.restassured.RestAssured.*;
 import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -62,11 +64,14 @@ public class StepDefinition {
 		}
 	}
 	
-	@Test(dataProvider = "getUserData", dataProviderClass = utils.GetData.class)
+	private List<Object[]> scenarioData;
 	@Given("{string} with a valid userId")
-	public void user_with_a_valid_userId(String APIName, int UserId) 
+	public void user_with_a_valid_userId(String APIName) 
 	{ 
-		this.existingUserId = UserId;
+		String scenarioName = Hooks.getScenarioName();
+		scenarioData = GetData.getScenarioData(scenarioName);
+		this.existingUserId = scenarioData.get(0)[0] != null ? Integer.parseInt(scenarioData.get(0)[1].toString()) : 0;// Extracting userId from the scenario data
+		//System.out.println("existingUserId - "+existingUserId);
 		if(APIName.equalsIgnoreCase("Delete User"))
 		{
 			reqSpec = given().spec(SpecificationFactory.getRequestSpecification());
@@ -86,6 +91,10 @@ public class StepDefinition {
 		else if(APIMethod.equalsIgnoreCase("PUT"))
 		{
 			response = reqSpec.when().put(PropertyFileReader.getEndPoint(APIMethod) + existingUserId);
+		}
+		else if(APIMethod.equalsIgnoreCase("DELETE"))
+		{
+			response = reqSpec.when().delete(PropertyFileReader.getEndPoint(APIMethod) + existingUserId);
 		}
 	}
 
@@ -112,6 +121,11 @@ public class StepDefinition {
 			assertEquals(email, getEditUserResponse.getEmail());
 			assertEquals(status, getEditUserResponse.getStatus());
 		}
+		else if (APIMethod.equalsIgnoreCase("DELETE"))
+		{
+			response.then().statusCode(204);
+			System.out.println("User with ID: " + existingUserId + " has been deleted successfully.");
+		}
 	}
 	
 	@Then("{string} request response should be valid with following details {string}, {string}, {string}, {string}")
@@ -133,9 +147,9 @@ public class StepDefinition {
 		}
 	}
 	
-	@Then("user should exist")
-	public void user_should_exist() {
-	    if(newUserId!=0) 
+	@Then("Verify user existence after {string} API request")
+	public void verify_user_existence(String APIMethod) {
+	    if(APIMethod.equalsIgnoreCase("POST"))
 	    {
 	    	response = given().spec(SpecificationFactory.getRequestSpecification()).when().get(PropertyFileReader.getEndPoint("get")+newUserId).then().spec(SpecificationFactory.getResponseSpecification("Get single user")).extract().response();
 		    createUserSuccessResponsePojo = response.as(CreateUserSuccessResponsePojo.class);
@@ -145,7 +159,7 @@ public class StepDefinition {
 			assertEquals(email, createUserSuccessResponsePojo.getEmail());
 			assertEquals(status, createUserSuccessResponsePojo.getStatus());
 	    }
-	    else if(existingUserId!=0) 
+	    else if(APIMethod.equalsIgnoreCase("PUT")) 
 	    {
 	    	response = given().spec(SpecificationFactory.getRequestSpecification()).when().get(PropertyFileReader.getEndPoint("get")+existingUserId).then().spec(SpecificationFactory.getResponseSpecification("Get single user")).extract().response();
 	    	GetUserResponsePojo getUserResponse = response.as(GetUserResponsePojo.class);
@@ -154,6 +168,15 @@ public class StepDefinition {
 			assertEquals(gender, getUserResponse.getGender());
 			assertEquals(email, getUserResponse.getEmail());
 			assertEquals(status, getUserResponse.getStatus());
+	    }
+	    else if(APIMethod.equalsIgnoreCase("DELETE"))
+	    {
+	    	response = given().spec(SpecificationFactory.getRequestSpecification()).when().get(PropertyFileReader.getEndPoint("get")+existingUserId);
+	    	if(response.getStatusCode() == 404) {
+	    		System.out.println("User with ID: " + existingUserId + " has been successfully deleted.");
+	    	} else {
+	    		System.out.println("User with ID: " + existingUserId + " still exists.");
+	    	}
 	    }
 	}
 	
@@ -168,62 +191,4 @@ public class StepDefinition {
 		existingUserDetails.put("status", getUserResponse.getStatus());
 
 	}
-
-	//@Test
-	public void getFunction()
-	{
-		RestAssured.baseURI = "https://gorest.co.in";
-		given().log().all().header("Authorization","Bearer dc231eda4693ea8fe44e764b2b79051d2486cd6e70b447256ca5ccc4cea8b5c1")
-		.when().get("/public/v2/users")
-		.then().log().all().statusCode(200);
-	}
-	//@Test
-	public void postFunction()
-	{
-		RestAssured.baseURI = "https://gorest.co.in";
-		given()
-		  .log().all()
-		  .header("Authorization","Bearer dc231eda4693ea8fe44e764b2b79051d2486cd6e70b447256ca5ccc4cea8b5c1")
-		  .header("Content-Type","application/json")
-		  .body("{\r\n"
-		      + "    \"name\": \"Tenali Ramakrishna\",\r\n"
-		      + "    \"gender\": \"male\",\r\n"
-		      + "    \"email\": \"tenali.ramakrishna@15ce1.com\",\r\n"
-		      + "    \"status\": \"active\"\r\n"
-		      + "}")
-		.when().post("/public/v2/users")
-		.then().log().all().statusCode(201);
-
-	}
-	//@Test
-	public void putfunction()
-	{
-		RestAssured.baseURI = "https://gorest.co.in";
-		given().log().all().header("Authorization","Bearer dc231eda4693ea8fe44e764b2b79051d2486cd6e70b447256ca5ccc4cea8b5c1")
-		.header("Content-Type","application/json")
-		.body("{\r\n"
-				+ "    \"id\":  \"8056720\",\r\n"
-				+ "    \"name\": \"Tenali Ramakrishna\",\r\n"
-				+ "    \"gender\": \"female\",\r\n"
-				+ "    \"email\": \"tenali.ramakrishna@15ce1.com\",\r\n"
-				+ "    \"status\": \"active\"\r\n"
-				+ "}")
-		.when().put("/public/v2/users/").then().log().all();
-	}
-	//@Test
-	public void delfunction()
-	{
-		int id = 8056720;
-		RestAssured.baseURI = "https://gorest.co.in";
-		given().log().all().pathParam("id", id).header("Authorization","Bearer dc231eda4693ea8fe44e764b2b79051d2486cd6e70b447256ca5ccc4cea8b5c1")
-		.when().delete("/public/v2/users/{id}").then().log().all().statusCode(204);
-		
-	}
 }
-//{
-//    "id": 8056720,
-//    "name": "Tenali Ramakrishna",
-//    "email": "tenali.ramakrishna@15ce1.com",
-//    "gender": "male",
-//    "status": "active"
-//}

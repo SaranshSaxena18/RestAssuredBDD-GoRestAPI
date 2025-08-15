@@ -8,7 +8,7 @@ Feature: Go Rest API Automation
     Given "Add User" API payload should be valid with "<name>", "<gender>", "<email>", "<status>" 
     When API is hit with "POST" https request
     Then "POST" request response should be valid
-    And user should exist
+    And Verify user existence after "Post" API request
     Examples:
     |name							 |gender|email											 |status|
 		|Tenali Ramakrishna|male	|tenali.ramakrishna@15ce123.com|active|
@@ -25,11 +25,11 @@ Feature: Go Rest API Automation
     Given "Edit User" with a valid userId 8065105
     When API is hit with "Put" https request
     Then "PUT" request response should be valid 
-    And user should exist 
+    And Verify user existence after "Put" API request
     
-    @tag1
+    #@tag1
     Scenario: Test Delete User API
     Given "Delete User" with a valid userId
     When API is hit with "Delete" https request
     Then "Delete" request response should be valid 
-    And user should exist 
+    And Verify user existence after "Delete" API request 
