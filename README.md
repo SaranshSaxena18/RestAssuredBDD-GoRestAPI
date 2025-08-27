@@ -1,5 +1,5 @@
 # RestAssuredBDD-GoRestAPI
-This project aims to automate APIs for this web application - https://gorest.co.in/rest-console.
+This project aims to automate APIs for the web application - https://gorest.co.in/rest-console.
 
 **Technologies Used**
 
