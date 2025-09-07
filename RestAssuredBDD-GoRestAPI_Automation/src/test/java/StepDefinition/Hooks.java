@@ -24,7 +24,7 @@ public class Hooks {
 	@Before(order=1)
 	public void setUp(Scenario scenario) {
 		//scenarioName = scenario.getName();
-		ExtentTestManager.createTest(ScenarioName);
+		ExtentTestManager.createTest(ScenarioName);// Create a new test in ExtentReports for each scenario
 	}
 	
 	public static String getScenarioName() {
@@ -37,13 +37,13 @@ public class Hooks {
 		System.out.println("Starting scenario: " + ScenarioName.get());
 	}
 	
-	@BeforeAll
+	@BeforeAll// This will run once before all scenarios
     public static void beforeAll() {
-        GetData.initialize();
+        GetData.initialize();// Initialize the data reader once before all scenarios
     }
 
 	
-	@After(order=1)
+	@After(order=1)// This will run after each scenario
 	public void cleanUp() {
         RequestSpecification reqSpec = SpecificationFactory.getRequestSpecification();
         if (reqSpec != null) {
@@ -61,7 +61,7 @@ public class Hooks {
         StepDefinition.newUserId = 0;
     }
 	
-	@After
+	@After// This will run after each scenario
     public void afterScenario(Scenario scenario) {
         ExtentTest test = ExtentTestManager.getExtentTest();
 
@@ -72,7 +72,7 @@ public class Hooks {
         }
 	}
 	
-	 @AfterAll
+	 @AfterAll// This will run once after all scenarios
 		public static void tearDown() {
 			ExtentTestManager.flush();
 		}

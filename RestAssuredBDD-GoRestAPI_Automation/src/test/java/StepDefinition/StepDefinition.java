@@ -47,34 +47,40 @@ public class StepDefinition {
 	@Given("{string} with a valid userId {int}")
 	public void with_a_valid_userId(String APIName, int UserId) 
 	{ 
-		this.existingUserId = UserId;
+		StepDefinition.existingUserId = UserId;
 		if(APIName.equalsIgnoreCase("Get User"))
 		{
 			reqSpec = given().spec(SpecificationFactory.getRequestSpecification());
 		}
-		else if(APIName.equalsIgnoreCase("Edit User"))
-		{
-			getUserDetails(existingUserId);//this function will fetch the user details and store them in userDetails map to compare it after PUT request
-			this.gender = ((String) existingUserDetails.get("gender")).equalsIgnoreCase("male") ? "female" : "male"; //changing value
-			this.status = ((String) existingUserDetails.get("status")).equalsIgnoreCase("active") ? "inactive" : "active"; //changing value
-			this.name = UserDetailsGenerator.generateRandomName();//generating random name
-			this.email = UserDetailsGenerator.generateRandomEmail();//generating random email
-			System.out.println("Edit User / Put request body");
-			reqSpec = given().log().body().spec(SpecificationFactory.getRequestSpecification()).body(testDataBuild.createEditUserPayload(existingUserId, name, gender, email, status));
-		}
 	}
 	
-	private List<Object[]> scenarioData;
+	private List<Object[]> scenarioData;//to hold the scenario data fetched from excel
 	@Given("{string} with a valid userId")
 	public void user_with_a_valid_userId(String APIName) 
 	{ 
 		String scenarioName = Hooks.getScenarioName();
 		scenarioData = GetData.getScenarioData(scenarioName);
-		this.existingUserId = scenarioData.get(0)[0] != null ? Integer.parseInt(scenarioData.get(0)[1].toString()) : 0;// Extracting userId from the scenario data
+		StepDefinition.existingUserId = scenarioData.get(0)[0] != null ? Integer.parseInt(scenarioData.get(0)[1].toString()) : 0;// Extracting userId from the scenario data
 		//System.out.println("existingUserId - "+existingUserId);
 		if(APIName.equalsIgnoreCase("Delete User"))
 		{
 			reqSpec = given().spec(SpecificationFactory.getRequestSpecification());
+		}
+		else if(APIName.equalsIgnoreCase("Edit User"))
+		{
+			System.out.println("Fetching user details for userId: " + existingUserId+" before PUT request");
+		    response = given().spec(SpecificationFactory.getRequestSpecification()).when().get(PropertyFileReader.getEndPoint("get")+existingUserId).then().log().body()
+		    		.spec(SpecificationFactory.getResponseSpecification("Get single user")).extract().response();//fetching user details before PUT request so that we can update the details.
+		    GetUserResponsePojo getUserResponse = response.as(GetUserResponsePojo.class);
+			existingUserDetails.put("idKey", getUserResponse.getId());//storing user details in map to compare it after PUT request
+			existingUserDetails.put("genderKey", getUserResponse.getGender());
+			existingUserDetails.put("statusKey", getUserResponse.getStatus());
+			this.gender = ((String) existingUserDetails.get("genderKey")).equalsIgnoreCase("male") ? "female" : "male"; //changing value
+			this.status = ((String) existingUserDetails.get("statusKey")).equalsIgnoreCase("active") ? "inactive" : "active"; //changing value
+			this.name = UserDetailsGenerator.generateRandomName();//generating random name
+			this.email = UserDetailsGenerator.generateRandomEmail();//generating random email
+			System.out.println("Edit User / Put REQUEST body");
+			reqSpec = given().log().body().spec(SpecificationFactory.getRequestSpecification()).body(testDataBuild.createEditUserPayload(existingUserId, name, gender, email, status));
 		}
 	}
 	
@@ -112,7 +118,7 @@ public class StepDefinition {
 		}
 		else if(APIMethod.equalsIgnoreCase("PUT"))
 		{
-			System.out.println("Edit User / Put response body");
+			System.out.println("Edit User / Put RESPONSE body");
 			response = response.then().spec(SpecificationFactory.getResponseSpecification(APIMethod)).log().body().extract().response();
 			EditUserResponsePojo getEditUserResponse = response.as(EditUserResponsePojo.class);
 			assertEquals(existingUserId, getEditUserResponse.getId());
@@ -181,14 +187,7 @@ public class StepDefinition {
 	}
 	
 	public void getUserDetails(int existingUserId) {
-		System.out.println("Fetching user details for userId: " + existingUserId+" before PUT request");
-	    response = given().spec(SpecificationFactory.getRequestSpecification()).when().get(PropertyFileReader.getEndPoint("get")+existingUserId).then().log().body().spec(SpecificationFactory.getResponseSpecification("Get single user")).extract().response();
-	    GetUserResponsePojo getUserResponse = response.as(GetUserResponsePojo.class);
-		existingUserDetails.put("id", getUserResponse.getId());
-		existingUserDetails.put("name", getUserResponse.getName());
-		existingUserDetails.put("gender", getUserResponse.getGender());
-		existingUserDetails.put("email", getUserResponse.getEmail());
-		existingUserDetails.put("status", getUserResponse.getStatus());
+		
 
 	}
 }

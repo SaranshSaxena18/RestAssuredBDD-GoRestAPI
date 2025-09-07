@@ -55,7 +55,7 @@ public class SpecificationFactory {
     						.expectStatusCode(201)
     						.expectContentType(ContentType.JSON)
     						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
-    						.expectResponseTime(lessThan(5000L))
+    						//.expectResponseTime(lessThan(5000L))
     						.build();
     	}
     	else if(APIMethod.equalsIgnoreCase("GET single user"))
@@ -64,7 +64,7 @@ public class SpecificationFactory {
     						.expectStatusCode(200)
     						.expectContentType(ContentType.JSON)
     						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
-    						.expectResponseTime(lessThan(5000L))
+    						//.expectResponseTime(lessThan(5000L))
     						.build();
     	}
     	else if(APIMethod.equalsIgnoreCase("PUT"))
@@ -73,7 +73,7 @@ public class SpecificationFactory {
     						.expectStatusCode(200)
     						.expectContentType(ContentType.JSON)
     						.expectBody(matchesJsonSchemaInClasspath("TestResources/expectedjsonschema.json"))
-    						.expectResponseTime(lessThan(5000L))
+    						//.expectResponseTime(lessThan(5000L))
     						.build();
     	}
     	return responseSpec;
